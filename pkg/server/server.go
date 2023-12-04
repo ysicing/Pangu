@@ -1,16 +1,16 @@
 package server
 
 import (
-	"context"
 	"net/http"
 	"os"
 
+	"gitea.ysicing.net/cloud/pangu/common"
 	"github.com/ergoapi/util/exgin"
 	"github.com/ergoapi/util/exhttp"
 	"github.com/sirupsen/logrus"
 )
 
-func Serve(ctx context.Context) error {
+func Serve() error {
 	g := exgin.Init(&exgin.Config{
 		Debug:   true,
 		Gops:    true,
@@ -24,13 +24,11 @@ func Serve(ctx context.Context) error {
 		Handler: g,
 	}
 	go func() {
-		exhttp.SetupGracefulStop(srv)
-		logrus.Info("server exited.")
+		logrus.Infof("Version: %s, http listen to %v, pid is %v", common.GetVersion(), addr, os.Getpid())
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logrus.Panicf("Failed to start http server, error: %s", err)
+		}
 	}()
-	logrus.Infof("http listen to %v, pid is %v", addr, os.Getpid())
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		logrus.Errorf("Failed to start http server, error: %s", err)
-		return err
-	}
+	exhttp.SetupGracefulStop(srv)
 	return nil
 }

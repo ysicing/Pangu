@@ -1,10 +1,7 @@
 package main
 
 import (
-	"context"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"gitea.ysicing.net/cloud/pangu/pkg/server"
 	"github.com/sirupsen/logrus"
@@ -16,13 +13,7 @@ func init() {
 }
 
 func main() {
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
-	go func() {
-		<-ctx.Done()
-		stop()
-	}()
-
-	if err := server.Serve(ctx); err != nil {
+	if err := server.Serve(); err != nil {
 		logrus.Fatalf("run serve: %v", err)
 	}
 }

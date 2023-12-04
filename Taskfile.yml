@@ -38,6 +38,13 @@ tasks:
       - go install github.com/mitchellh/gox@latest
       - gox -os={{.GOOS}} -arch={{.GOARCH}} -output="{{.BUILD_DIR}}/pangu_{{.GOOS}}_{{.GOARCH}}" -ldflags "{{.LDFLAGS}}"
 
+  run:
+    desc: Run the binary
+    deps:
+      - task: build
+    cmds:
+      - ./_output/pangu_{{.GOOS}}_{{.GOARCH}}
+
   clean:
     desc: Clean Up Build Cache Files
     cmds:
