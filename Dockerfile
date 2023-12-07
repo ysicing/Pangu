@@ -25,4 +25,4 @@ WORKDIR /app
 
 COPY --from=builder /app/_output/pangu_linux_amd64 /app/pangu
 
-ENTRYPOINT ["/app/pangu"]
+CMD ["/app/pangu", "server"]

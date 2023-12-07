@@ -1,19 +1,24 @@
 package main
 
 import (
-	"os"
+	"runtime"
 
-	"gitea.ysicing.net/cloud/pangu/pkg/server"
-	"github.com/sirupsen/logrus"
+	"gitea.ysicing.net/cloud/pangu/cmd"
+	errors "github.com/ergoapi/util/exerror"
 )
 
-func init() {
-	logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetOutput(os.Stdout)
-}
+// @title Pangu API
+// @version 0.0.1
+// @description pangu.
 
+// @contact.name ysicing
+// @contact.url http://github.com/ysicing
+// @contact.email i@ysicing.me
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
 func main() {
-	if err := server.Serve(); err != nil {
-		logrus.Fatalf("run serve: %v", err)
-	}
+	cores := runtime.NumCPU()
+	runtime.GOMAXPROCS(cores)
+	errors.CheckAndExit(cmd.Execute())
 }

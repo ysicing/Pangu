@@ -13,6 +13,7 @@ vars:
   BUILD_DATE: $(date +%Y%m%d)
   GIT_BRANCH: $(git branch -r --contains | head -1 | sed -E -e "s%(HEAD ->|origin|upstream)/?%%g" | xargs)
   GIT_COMMIT: $(git rev-parse --short HEAD || echo "abcdefgh")
+  IMAGE: ttl.sh/ysicing/pangu:{{.BUILD_RELEASE}}-{{.BUILD_DATE}}-{{.GIT_COMMIT}}
   LDFLAGS: "-w -s \
     -X '{{.VERSION_PKG}}.Version={{.BUILD_RELEASE}}' \
     -X '{{.VERSION_PKG}}.BuildDate={{.BUILD_DATE}}' \
@@ -43,7 +44,7 @@ tasks:
     deps:
       - task: build
     cmds:
-      - ./_output/pangu_{{.GOOS}}_{{.GOARCH}}
+      - ./_output/pangu_{{.GOOS}}_{{.GOARCH}} server
 
   clean:
     desc: Clean Up Build Cache Files
@@ -51,6 +52,11 @@ tasks:
       - rm -rf {{.BUILD_DIR}}
     status:
       - test -f {{.BUILD_DIR}}
+
+  docker:
+    desc: Build Docker Image
+    cmds:
+      - docker buildx build --platform linux/amd64 -t {{.IMAGE}} --push --pull .
 
   default:
     cmds:

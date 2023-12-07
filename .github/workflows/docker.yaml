@@ -27,4 +27,4 @@ jobs:
           platforms: linux/amd64
           push: true
           pull: true
-          tags: ttl.sh/nogfw/pangu:2023
+          tags: ttl.sh/ysicing/pangu:2023
