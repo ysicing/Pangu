@@ -4,7 +4,7 @@
 # (2) Affero General Public License 3.0 (AGPL 3.0)
 # License that can be found in the LICENSE file.
 
-FROM ysicing/god AS builder
+FROM h2.ysicing.net/ysicing/god AS builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ COPY . ./
 
 RUN task
 
-FROM ysicing/debian
+FROM h2.ysicing.net/ysicing/debian
 
 WORKDIR /app
 
