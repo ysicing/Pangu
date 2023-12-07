@@ -1,0 +1,13 @@
+info:
+  contact:
+    email: i@ysicing.me
+    name: ysicing
+    url: http://github.com/ysicing/pangu
+  description: pangu.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Pangu API
+  version: v0.0.1-20231207-49a7905
+paths: {}
+swagger: "2.0"

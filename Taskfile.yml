@@ -13,7 +13,8 @@ vars:
   BUILD_DATE: $(date +%Y%m%d)
   GIT_BRANCH: $(git branch -r --contains | head -1 | sed -E -e "s%(HEAD ->|origin|upstream)/?%%g" | xargs)
   GIT_COMMIT: $(git rev-parse --short HEAD || echo "abcdefgh")
-  IMAGE: ttl.sh/ysicing/pangu:{{.BUILD_RELEASE}}-{{.BUILD_DATE}}-{{.GIT_COMMIT}}
+  APP_VERSION: "{{.BUILD_RELEASE}}-{{.BUILD_DATE}}-{{.GIT_COMMIT}}"
+  IMAGE: ttl.sh/ysicing/pangu:{{.APP_VERSION}}
   LDFLAGS: "-w -s \
     -X '{{.VERSION_PKG}}.Version={{.BUILD_RELEASE}}' \
     -X '{{.VERSION_PKG}}.BuildDate={{.BUILD_DATE}}' \
@@ -35,6 +36,8 @@ tasks:
 
   build:
     desc: Build the binary
+    deps:
+      - task: docs
     cmds:
       - go install github.com/mitchellh/gox@latest
       - gox -os={{.GOOS}} -arch={{.GOARCH}} -output="{{.BUILD_DIR}}/pangu_{{.GOOS}}_{{.GOARCH}}" -ldflags "{{.LDFLAGS}}"
@@ -57,6 +60,47 @@ tasks:
     desc: Build Docker Image
     cmds:
       - docker buildx build --platform linux/amd64 -t {{.IMAGE}} --push --pull .
+
+  docs:
+    desc: Generate Docs
+    deps:
+      - task: checkswag
+    cmds:
+      - hack/scripts/gendocs.sh {{.APP_VERSION}}
+
+  checkswag:
+    desc: Check swag
+    cmds:
+      - go install github.com/swaggo/swag/cmd/swag@latest
+    status:
+      - which swag
+
+  gomod:
+    desc: update go mod
+    cmds:
+      - go mod tidy
+
+  gofmt:
+    cmds:
+      - go install golang.org/x/tools/cmd/goimports@latest
+      - gofmt -s -w .
+      - goimports -w .
+
+  golint:
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - golangci-lint run -v ./...
+
+  gencopyright:
+    cmds:
+      - go install github.com/google/addlicense@latest
+      - hack/scripts/gencopyright.sh
+
+  lint:
+    cmds:
+      - task: gencopyright
+      - task: gofmt
+      - task: golint
 
   default:
     cmds:
