@@ -24,3 +24,4 @@ go.work
 _output
 
 pangu.yaml
+deploy.yaml
