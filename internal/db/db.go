@@ -6,9 +6,80 @@
 
 package db
 
-import "gorm.io/gorm"
+import (
+	"strings"
+	"time"
 
-func Init() (*gorm.DB, error) {
-	// Add your initialization logic here
-	return nil, nil
+	"gitea.ysicing.net/cloud/pangu/common"
+	"gitea.ysicing.net/cloud/pangu/pkg/util"
+	"github.com/cockroachdb/errors"
+	"github.com/ergoapi/util/log/glog"
+	"github.com/glebarez/sqlite"
+	"github.com/sirupsen/logrus"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+	"gorm.io/plugin/prometheus"
+)
+
+var DB *gorm.DB
+
+var Migrates []interface{}
+
+func Migrate(obj interface{}) {
+	Migrates = append(Migrates, obj)
+}
+
+func SetDB() error {
+	var err error
+	dsn := util.GetKeyFromYaml("db.dsn", "pangu.db")
+	debug := util.GetStatusFromYaml("debug")
+
+	dbcfg := &gorm.Config{
+		SkipDefaultTransaction: true,
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+		Logger: &glog.DefaultGLogger,
+		NowFunc: func() time.Time {
+			loc, _ := time.LoadLocation("Asia/Shanghai")
+			return time.Now().In(loc).Truncate(time.Second)
+		},
+	}
+	if debug {
+		dbcfg.Logger.LogMode(logger.Info)
+	}
+	logrus.Infof("load db config")
+	if strings.Contains(dsn, "@") {
+		DB, err = gorm.Open(mysql.Open(dsn), dbcfg)
+	} else {
+		DB, err = gorm.Open(sqlite.Open(dsn), dbcfg)
+	}
+	if err != nil {
+		return errors.Errorf("连接数据库异常: %v", err)
+	}
+
+	sqlDB, err := DB.DB()
+	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
+	sqlDB.SetMaxIdleConns(util.GetKeyIntFromYaml("db.max_idle_conns", 10))
+	// SetMaxOpenConns 设置打开数据库连接的最大数量
+	sqlDB.SetMaxOpenConns(util.GetKeyIntFromYaml("db.max_open_conns", 100))
+	// SetConnMaxLifetime 设置了连接可复用的最大时间
+	sqlDB.SetConnMaxLifetime(time.Minute)
+
+	if util.GetStatusFromYaml("db.metrics.enable") {
+		dbname := util.GetKeyFromYaml("db.metrics.name", common.DBMetricsName)
+		if err := DB.Use(prometheus.New(prometheus.Config{
+			DBName: dbname,
+		})); err != nil {
+			return errors.Errorf("启用数据库监控扩展异常: %v", err)
+		}
+	}
+	logrus.Debug("table num: ", len(Migrates))
+	if err := DB.AutoMigrate(Migrates...); err != nil {
+		return errors.Errorf("初始化数据库表结构异常: %v", err)
+	}
+	logrus.Infof("create db engine success...")
+	return nil
 }

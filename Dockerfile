@@ -29,4 +29,6 @@ WORKDIR /app
 
 COPY --from=builder /app/_output/pangu_linux_amd64 /app/pangu
 
+COPY pangu.example.yaml /conf/pangu.yaml
+
 CMD ["/app/pangu", "web"]
