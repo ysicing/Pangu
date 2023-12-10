@@ -1,0 +1,33 @@
+---
+apiVersion: apps.kruise.io/v1alpha1
+kind: CloneSet
+metadata:
+  annotations:
+    apps.kruise.io/image-predownload-parallelism: "10"
+    apps.kruise.io/image-predownload-min-updated-ready-pods: "3"
+  labels:
+    app: pangu
+  name: pangu
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: pangu
+  template:
+    metadata:
+      labels:
+        app: pangu
+    spec:
+      containers:
+      - name: pangu
+        image: ttl.sh/ysicing/pangu:2023
+        imagePullPolicy: Always
+        env:
+        - name: TZ
+          value: Asia/Shanghai
+        - name: PGU_DEBUG
+          value: "true"
+  updateStrategy:
+    type: InPlaceIfPossible
+    inPlaceUpdateStrategy:
+      gracePeriodSeconds: 10

@@ -16,13 +16,14 @@ import (
 	"github.com/ergoapi/util/exgin"
 	"github.com/ergoapi/util/exhttp"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Serve() error {
 	g := exgin.Init(&exgin.Config{
-		Debug:   true,
+		Debug:   viper.GetBool("debug"),
 		Gops:    true,
 		Pprof:   true,
 		Metrics: true,

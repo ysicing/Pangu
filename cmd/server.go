@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func serverCommand() *cobra.Command {
+func webCommand() *cobra.Command {
 	s := &cobra.Command{
-		Use:   "server",
-		Short: "core server",
+		Use:   "web",
+		Short: "core web api",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return server.Serve()
 		},
