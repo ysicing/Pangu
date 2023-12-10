@@ -8,6 +8,7 @@ metadata:
   labels:
     app: pangu
   name: pangu
+  namespace: pangu
 spec:
   replicas: 4
   selector:
@@ -31,3 +32,50 @@ spec:
     type: InPlaceIfPossible
     inPlaceUpdateStrategy:
       gracePeriodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pangu
+  labels:
+    app: pangu
+  namespace: pangu
+spec:
+  ports:
+  - port: 65001
+    targetPort: 65001
+    protocol: TCP
+    name: http
+  selector:
+    app: pangu
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+  namespace: pangu
+spec:
+  redirectScheme:
+    scheme: https
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ingressroutetls
+  namespace: pangu
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`pangu.bjslb.ysicing.net`)
+    kind: Rule
+    services:
+    - name: pangu
+      port: 65001
+    middlewares:
+      - name: redirect-https
+  tls:
+    certResolver: myresolver
+
