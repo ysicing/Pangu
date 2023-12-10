@@ -33,7 +33,7 @@ func Migrate(obj interface{}) {
 
 func SetDB() error {
 	var err error
-	dsn := util.GetKeyFromYaml("db.dsn", "pangu.db")
+	dsn := util.GetKeyFromYaml("db.dsn", "file://tmp/pangu.db?cache=shared&mode=rwc")
 	debug := util.GetStatusFromYaml("debug")
 
 	dbcfg := &gorm.Config{
@@ -76,7 +76,7 @@ func SetDB() error {
 			return errors.Errorf("启用数据库监控扩展异常: %v", err)
 		}
 	}
-	logrus.Debug("table num: ", len(Migrates))
+	logrus.Debugf("table num: %d", len(Migrates))
 	if err := DB.AutoMigrate(Migrates...); err != nil {
 		return errors.Errorf("初始化数据库表结构异常: %v", err)
 	}
