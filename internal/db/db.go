@@ -18,7 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"gorm.io/plugin/prometheus"
 )
@@ -33,8 +32,7 @@ func Migrate(obj interface{}) {
 
 func SetDB() error {
 	var err error
-	dsn := util.GetKeyFromYaml("db.dsn", "file://tmp/pangu.db?cache=shared&mode=rwc")
-	debug := util.GetStatusFromYaml("debug")
+	dsn := util.GetKeyFromYaml("db.dsn", "file:/tmp/pangu.db?cache=shared&mode=rwc")
 
 	dbcfg := &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -46,9 +44,6 @@ func SetDB() error {
 			loc, _ := time.LoadLocation("Asia/Shanghai")
 			return time.Now().In(loc).Truncate(time.Second)
 		},
-	}
-	if debug {
-		dbcfg.Logger.LogMode(logger.Info)
 	}
 	logrus.Infof("load db config")
 	if strings.Contains(dsn, "@") {

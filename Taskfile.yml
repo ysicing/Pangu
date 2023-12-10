@@ -102,6 +102,11 @@ tasks:
       - task: gofmt
       - task: golint
 
+  restart:
+    desc: Restart Pods
+    cmds:
+      - kubectl kruise rollout restart cloneset -n pangu
+
   default:
     cmds:
       - task: clean

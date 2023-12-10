@@ -2,7 +2,7 @@ debug: true
 
 db:
   type: sqlite
-  dsn: "file://tmp/pangu.db?cache=shared&mode=rwc"
+  dsn: "file:/tmp/pangu.db?cache=shared&mode=rwc"
   metrics:
     enable: true
     # name: "pangu"
