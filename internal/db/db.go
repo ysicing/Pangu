@@ -56,6 +56,9 @@ func SetDB() error {
 	}
 
 	sqlDB, err := DB.DB()
+	if err != nil {
+		return errors.Errorf("获取数据库连接异常: %v", err)
+	}
 	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
 	sqlDB.SetMaxIdleConns(util.GetKeyIntFromYaml("db.max_idle_conns", 10))
 	// SetMaxOpenConns 设置打开数据库连接的最大数量

@@ -7,5 +7,5 @@
 package common
 
 const (
-  DBMetricsName = "pgudb"
+	DBMetricsName = "pgudb"
 )

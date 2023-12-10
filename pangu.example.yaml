@@ -6,3 +6,9 @@ db:
   metrics:
     enable: true
     # name: "pangu"
+
+cache:
+  type: redis
+  host: 127.0.0.1:6379
+  password: "redis"
+  # db: 6

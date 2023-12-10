@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"gitea.ysicing.net/cloud/pangu/common"
-	"github.com/ergoapi/util/color"
 	"github.com/ergoapi/util/zos"
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
@@ -51,12 +50,12 @@ func initConfig() {
 	viper.SetEnvPrefix("PGU")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	if err := viper.ReadInConfig(); err == nil {
-		logrus.Debugf("Using config file: %v", color.SGreen(viper.ConfigFileUsed()))
+		logrus.Debugf("Using config file: %v", viper.ConfigFileUsed())
 	}
 	// reload
 	viper.WatchConfig()
 	viper.OnConfigChange(func(in fsnotify.Event) {
-		logrus.Debugf("config changed: %v", color.SGreen(in.Name))
+		logrus.Debugf("config changed: %v", in.Name)
 	})
 	if common.Debug {
 		viper.Set("debug", true)

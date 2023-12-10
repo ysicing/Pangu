@@ -13,6 +13,8 @@ import (
 
 	"gitea.ysicing.net/cloud/pangu/common"
 	_ "gitea.ysicing.net/cloud/pangu/docs"
+	"gitea.ysicing.net/cloud/pangu/internal/cache"
+	"gitea.ysicing.net/cloud/pangu/internal/cron"
 	"gitea.ysicing.net/cloud/pangu/internal/db"
 	"gitea.ysicing.net/cloud/pangu/internal/routes"
 	_ "gitea.ysicing.net/cloud/pangu/internal/routes/v1/config"
@@ -29,6 +31,11 @@ func Serve() error {
 	if err := db.SetDB(); err != nil {
 		return err
 	}
+	if err := cache.SetCache(); err != nil {
+		return err
+	}
+	defer cron.Cron.Stop()
+	cron.Cron.Start()
 	g := exgin.Init(&exgin.Config{
 		Debug:   viper.GetBool("debug"),
 		Gops:    true,
