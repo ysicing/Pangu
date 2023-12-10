@@ -13,6 +13,9 @@ import (
 
 	"gitea.ysicing.net/cloud/pangu/common"
 	_ "gitea.ysicing.net/cloud/pangu/docs"
+	"gitea.ysicing.net/cloud/pangu/internal/routes"
+	_ "gitea.ysicing.net/cloud/pangu/internal/routes/v1/config"
+	_ "gitea.ysicing.net/cloud/pangu/internal/routes/v1/custom"
 	"github.com/ergoapi/util/exgin"
 	"github.com/ergoapi/util/exhttp"
 	"github.com/sirupsen/logrus"
@@ -30,6 +33,7 @@ func Serve() error {
 	})
 	g.Use(exgin.ExLog(), exgin.ExRecovery(), exgin.Translations())
 	g.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	routes.SetupRoutes(g)
 	addr := "0.0.0.0:65001"
 	srv := &http.Server{
 		Addr:              addr,

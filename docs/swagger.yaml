@@ -8,6 +8,37 @@ info:
     name: AGPLv3
     url: https://opensource.org/licenses/MIT
   title: Pangu API
-  version: v0.0.1-20231210-6fad752
-paths: {}
+  version: v0.0.1-20231210-3704220
+paths:
+  /api/configs:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: jwtToken
+        in: header
+        name: Authorization
+        type: string
+      - description: staticToken
+        in: header
+        name: X-Auth-Token
+        type: string
+      responses:
+        "200":
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: 获取配置
+      tags:
+      - config
+  /cdn-cgi/trace:
+    get:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: CF CDN
+      tags:
+      - custom
 swagger: "2.0"

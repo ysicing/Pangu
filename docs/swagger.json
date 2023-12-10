@@ -12,7 +12,59 @@
             "name": "AGPLv3",
             "url": "https://opensource.org/licenses/MIT"
         },
-        "version": "v0.0.1-20231210-6fad752"
+        "version": "v0.0.1-20231210-3704220"
     },
-    "paths": {}
+    "paths": {
+        "/api/configs": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "获取配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "jwtToken",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
+                    {
+                        "type": "string",
+                        "description": "staticToken",
+                        "name": "X-Auth-Token",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/cdn-cgi/trace": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "custom"
+                ],
+                "summary": "CF CDN",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    }
 }
