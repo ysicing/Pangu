@@ -7,8 +7,10 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"gitea.ysicing.net/cloud/pangu/common"
@@ -19,8 +21,10 @@ import (
 	"gitea.ysicing.net/cloud/pangu/internal/routes"
 	_ "gitea.ysicing.net/cloud/pangu/internal/routes/v1/config"
 	_ "gitea.ysicing.net/cloud/pangu/internal/routes/v1/custom"
+	"gitea.ysicing.net/cloud/pangu/pkg/util"
 	"github.com/ergoapi/util/exgin"
 	"github.com/ergoapi/util/exhttp"
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	swaggerfiles "github.com/swaggo/files"
@@ -36,14 +40,23 @@ func Serve() error {
 	}
 	defer cron.Cron.Stop()
 	cron.Cron.Start()
+	metricsPath := util.GetKeyFromYaml("server.metrics.path", "/ops/metrics")
+	docsPath := strings.TrimSuffix(util.GetKeyFromYaml("server.docs", "/docs"), "/")
 	g := exgin.Init(&exgin.Config{
-		Debug:   viper.GetBool("debug"),
-		Gops:    true,
-		Pprof:   true,
-		Metrics: true,
+		Debug:       viper.GetBool("debug"),
+		Gops:        util.GetStatusFromYaml("server.gops"),
+		Pprof:       util.GetStatusFromYaml("server.pprof"),
+		MetricsPath: metricsPath,
+		Metrics:     true,
 	})
-	g.Use(exgin.ExLog(), exgin.ExRecovery(), exgin.Translations())
-	g.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	g.Use(exgin.ExLog(metricsPath, docsPath), exgin.ExRecovery(), exgin.Translations())
+	g.GET(fmt.Sprintf("%s/*any", docsPath), ginSwagger.WrapHandler(swaggerfiles.Handler))
+	g.NoMethod(func(ctx *gin.Context) {
+		ctx.String(http.StatusForbidden, "Forbidden")
+	})
+	g.NoRoute(func(ctx *gin.Context) {
+		ctx.String(http.StatusForbidden, "Forbidden")
+	})
 	routes.SetupRoutes(g)
 	addr := "0.0.0.0:65001"
 	srv := &http.Server{

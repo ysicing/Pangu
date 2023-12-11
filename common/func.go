@@ -6,7 +6,12 @@
 
 package common
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/ergoapi/util/file"
+	"github.com/ergoapi/util/zos"
+)
 
 func GetVersion() string {
 	return fmt.Sprintf("%s-%s-%s", Version, BuildDate, GitCommitHash)
@@ -14,4 +19,13 @@ func GetVersion() string {
 
 func GetDefaultPath() string {
 	return "/conf/pangu.yaml"
+}
+
+func GetDefaultLogFile() string {
+	logfile := "/tmp/pangu.log"
+	if zos.IsLinux() {
+		logfile = "/var/log/pangu/pangu.log"
+		file.MkFileFullPathDir(logfile)
+	}
+	return logfile
 }

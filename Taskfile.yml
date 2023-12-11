@@ -37,6 +37,7 @@ tasks:
   build:
     desc: Build the binary
     deps:
+      - task: gomod
       - task: docs
     cmds:
       - go install github.com/mitchellh/gox@latest

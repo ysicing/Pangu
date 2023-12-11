@@ -7,9 +7,11 @@
 package cmd
 
 import (
+	"os"
 	"strings"
 
 	"gitea.ysicing.net/cloud/pangu/common"
+	filehook "github.com/ergoapi/util/log/hooks/file"
 	"github.com/ergoapi/util/zos"
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
@@ -30,8 +32,17 @@ func Execute() error {
 
 func init() {
 	logrus.SetFormatter(&logrus.TextFormatter{})
-	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetReportCaller(false)
+	logrus.SetOutput(os.Stdout)
+	logrus.AddHook(filehook.NewRotateFileHook(filehook.RotateFileConfig{
+		Filename:   common.GetDefaultLogFile(),
+		MaxSize:    50,
+		MaxBackups: 0,
+		MaxAge:     7,
+		Level:      logrus.DebugLevel,
+		Formatter:  &logrus.JSONFormatter{},
+	}))
+	logrus.SetLevel(logrus.DebugLevel)
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&common.CfgFile, "config", "", "config file (default is /conf/example.yml)")
 	rootCmd.PersistentFlags().BoolVar(&common.Debug, "debug", false, "enable debug logging")
