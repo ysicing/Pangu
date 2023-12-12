@@ -25,3 +25,4 @@ _output
 
 pangu.yaml
 deploy.yaml
+*.dbnotfound.txt

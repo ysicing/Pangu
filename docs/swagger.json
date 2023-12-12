@@ -12,7 +12,7 @@
             "name": "AGPLv3",
             "url": "https://opensource.org/licenses/MIT"
         },
-        "version": "v0.0.1-20231211-9425265"
+        "version": "v0.0.2-20231212-216bca2"
     },
     "paths": {
         "/api/configs": {

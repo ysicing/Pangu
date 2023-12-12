@@ -21,7 +21,10 @@ import (
 	"gitea.ysicing.net/cloud/pangu/internal/routes"
 	_ "gitea.ysicing.net/cloud/pangu/internal/routes/v1/config"
 	_ "gitea.ysicing.net/cloud/pangu/internal/routes/v1/custom"
+	"gitea.ysicing.net/cloud/pangu/internal/service/config"
+	"gitea.ysicing.net/cloud/pangu/internal/service/user"
 	"gitea.ysicing.net/cloud/pangu/pkg/util"
+	"github.com/cockroachdb/errors"
 	"github.com/ergoapi/util/exgin"
 	"github.com/ergoapi/util/exhttp"
 	"github.com/gin-gonic/gin"
@@ -37,6 +40,9 @@ func Serve() error {
 	}
 	if err := cache.SetCache(); err != nil {
 		return err
+	}
+	if err := InitData(); err != nil {
+		return errors.Errorf("初始化数据异常: %v", err)
 	}
 	defer cron.Cron.Stop()
 	cron.Cron.Start()
@@ -72,4 +78,15 @@ func Serve() error {
 	}()
 	exhttp.SetupGracefulStop(srv)
 	return nil
+}
+
+func InitData() error {
+	if config.Init() {
+		logrus.Info("initialized")
+		return nil
+	}
+	if err := user.Init(); err != nil {
+		return err
+	}
+	return config.InitDone()
 }

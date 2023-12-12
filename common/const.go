@@ -8,4 +8,6 @@ package common
 
 const (
 	DBMetricsName = "pgudb"
+	InitKey       = "inited"
+	InitValue     = "20231212"
 )
